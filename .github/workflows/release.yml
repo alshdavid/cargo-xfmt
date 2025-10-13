@@ -41,7 +41,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: generate
-        run:
+        run: |
           set -e
           LAST_VERSION=$(curl -sSL https://api.github.com/repos/alshdavid/$PROJECT_NAME/releases/latest | jq -r ".tag_name" | cut -d "." -f 3)
           if [ "$LAST_VERSION" = "" ]; then
@@ -95,9 +95,7 @@ jobs:
       - if: matrix.config.run
         run: ${{ matrix.config.run }}
       - run: cargo build --release --target ${{ matrix.config.target }}
-      - run: 
-          cd target/${{ matrix.config.target }}/release
-          rm -rf build .fingerprint deps examples incremental
+      - run: cd target/${{ matrix.config.target }}/release && rm -rf build .fingerprint deps examples incremental
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ env.PROJECT_NAME }}-${{ matrix.config.target }}
