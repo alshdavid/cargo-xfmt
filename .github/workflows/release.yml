@@ -33,6 +33,27 @@ jobs:
       - run: eval $(curl -sSf sh.davidalsh.com/rust.sh | sh)
       - run: cargo run
 
+  version:
+    name: 🌐 Version
+    runs-on: ubuntu-24.04
+    outputs:
+      VERSION: ${{ steps.generate.outputs.VERSION }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: generate
+        run:
+          set -e
+          LAST_VERSION=$(curl -sSL https://api.github.com/repos/alshdavid/$PROJECT_NAME/releases/latest | jq -r ".tag_name" | cut -d "." -f 3)
+          if [ "$LAST_VERSION" = "" ]; then
+            LAST_VERSION="0"
+          fi
+          declare -i var="$LAST_VERSION"
+          var=$var+1
+          VERSION="0.0.$var"
+
+          echo $VERSION
+          echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
+
   build:
     strategy:
       matrix:
@@ -66,16 +87,21 @@ jobs:
 
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.runner }}
+    needs: 
+      - "version"
     steps:
       - uses: actions/checkout@v4
       - run: eval $(curl -sSf sh.davidalsh.com/rust.sh | sh)
       - if: matrix.config.run
         run: ${{ matrix.config.run }}
       - run: cargo build --release --target ${{ matrix.config.target }}
+      - run: 
+          cd target/${{ matrix.config.target }}/release
+          rm -rf build .fingerprint deps examples incremental
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ env.PROJECT_NAME }}-${{ matrix.config.target }}
-          path: ${{ github.workspace }}/target/${{ matrix.config.target }}/release/cargo-xfmt*
+          path: ${{ github.workspace }}/target/**/*
           if-no-files-found: error
           retention-days: 1
 
