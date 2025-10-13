@@ -1,0 +1,135 @@
+name: Release
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+on:
+  push:
+    branches:
+      - "main"
+
+env:
+  PROJECT_NAME: cargo-xfmt
+
+jobs:
+  test:
+    name: 🧪 Test
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: eval $(curl -sSf sh.davidalsh.com/rust.sh | sh)
+      - run: cargo test
+
+  format:
+    name: 📝 Format
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: eval $(curl -sSf sh.davidalsh.com/rust.sh | sh)
+      - run: cargo run
+
+  build:
+    strategy:
+      matrix:
+        config:
+          - name: 🐥 Linux AMD64
+            runner: ubuntu-24.04
+            target: x86_64-unknown-linux-musl
+            run: rustup target add x86_64-unknown-linux-musl
+
+          - name: 🐥 Linux ARM64
+            runner: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-musl
+            run: rustup target add aarch64-unknown-linux-musl
+
+          - name: 🍎 MacOS AMD64
+            target: x86_64-apple-darwin
+            runner: macos-13
+
+          - name: 🍎 MacOS ARM64
+            target: aarch64-apple-darwin
+            runner: macos-15
+
+          - name: 🟦 Windows AMD64
+            target: x86_64-pc-windows-msvc
+            runner: windows-latest
+
+          - name: 🟦 Windows ARM64
+            runner: windows-latest
+            target: aarch64-pc-windows-msvc
+            run: rustup target add aarch64-pc-windows-msvc
+
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: eval $(curl -sSf sh.davidalsh.com/rust.sh | sh)
+      - if: matrix.config.run
+        run: ${{ matrix.config.run }}
+      - run: cargo build --release --target ${{ matrix.config.target }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.PROJECT_NAME }}-${{ matrix.config.target }}
+          path: ${{ github.workspace }}/target/${{ matrix.config.target }}/release/cargo-xfmt*
+          if-no-files-found: error
+          retention-days: 1
+
+  publish_github_release:
+    name: "🔄 Publish Github Release"
+    runs-on: ubuntu-24.04
+    outputs:
+      VERSION: ${{ steps.tag.outputs.VERSION }}
+    needs:
+      - test
+      - format
+      - build
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: 
+          pattern: target*
+          path: target
+          merge-multiple: true
+
+      - name: Publish` Github Release
+        env:
+          GH_TAG: ${{needs.vars.outputs.GH_TAG}}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+
+          ls -l -a .
+          ls -l -a ./target
+          ls -l -a ./target/x86_64-unknown-linux-musl
+          ls -l -a ./target/x86_64-unknown-linux-musl/release
+
+          # LAST_TAG=$(curl -sSL https://api.github.com/repos/alshdavid/http-server-rs/releases/latest | jq -r ".tag_name" | cut -d "." -f 3)
+          # if [ "$LAST_TAG" = "" ]; then
+          #   LAST_TAG="0"
+          # fi
+          # declare -i var="$LAST_TAG"
+          # var=$var+1
+          # TAG="0.0.$var"
+
+          # echo "Tag: ${TAG}"
+
+          # gh release create $TAG  --draft --notes "Automatically built binaries"
+          # gh release edit $TAG --title "🚀 Latest"
+
+          # cd artifacts
+
+          # for name in *; do
+          #   cd "${{ github.workspace }}/artifacts/${name}/release"
+          #   chmod +x ./*
+          #   tar -czvf ./${name}.tar.gz ./*
+          #   gh release upload $TAG ${name}.tar.gz
+          # done
+
+          # gh release edit $TAG --draft=false
+
+          # echo "VERSION=$TAG" >> "$GITHUB_OUTPUT"
