@@ -34,7 +34,7 @@ jobs:
       - run: cargo run
 
   version:
-    name: 🌐 Version
+    name: 🌐 Auto Version Increment
     runs-on: ubuntu-24.04
     outputs:
       VERSION: ${{ steps.generate.outputs.VERSION }}
@@ -95,6 +95,7 @@ jobs:
       - if: matrix.config.run
         run: ${{ matrix.config.run }}
       - run: cargo build --release --target ${{ matrix.config.target }}
+        # Optional, reduce the artifact size 
       - run: cd target/${{ matrix.config.target }}/release && rm -rf build .fingerprint deps examples incremental
       - uses: actions/upload-artifact@v4
         with:
@@ -127,33 +128,39 @@ jobs:
         run: |
           set -e
 
-          ls -l -a .
-          ls -l -a ./target
-          ls -l -a ./target/x86_64-unknown-linux-musl
-          ls -l -a ./target/x86_64-unknown-linux-musl/release
+          echo "Tag: ${TAG}"
 
-          # LAST_TAG=$(curl -sSL https://api.github.com/repos/alshdavid/http-server-rs/releases/latest | jq -r ".tag_name" | cut -d "." -f 3)
-          # if [ "$LAST_TAG" = "" ]; then
-          #   LAST_TAG="0"
-          # fi
-          # declare -i var="$LAST_TAG"
-          # var=$var+1
-          # TAG="0.0.$var"
+          gh release create $TAG  --draft --notes "Automatically built binaries"
+          gh release edit $TAG --title "🚀 Latest"
 
-          # echo "Tag: ${TAG}"
+          cd ${{ github.workspace }}/target/x86_64-unknown-linux-musl/release
+          chmod cargo-xfmt
+          tar -czf ./cargo-xfmt-linux-amd64.tar.gz cargo-xfmt
+          gh release upload $TAG ${{ github.workspace }}/target/x86_64-unknown-linux-musl/release/cargo-xfmt.tar.gz
 
-          # gh release create $TAG  --draft --notes "Automatically built binaries"
-          # gh release edit $TAG --title "🚀 Latest"
+          cd ${{ github.workspace }}/target/aarch64-unknown-linux-musl/release
+          chmod cargo-xfmt
+          tar -czf ./cargo-xfmt-linux-arm64.tar.gz cargo-xfmt
+          gh release upload $TAG target/aarch64-unknown-linux-musl/release/cargo-xfmt.tar.gz
 
-          # cd artifacts
+          cd ${{ github.workspace }}/target/x86_64-apple-darwin/release
+          chmod cargo-xfmt
+          tar -czf ./cargo-xfmt-macos-amd64.tar.gz cargo-xfmt
+          gh release upload $TAG target/x86_64-apple-darwin/release/cargo-xfmt.tar.gz
 
-          # for name in *; do
-          #   cd "${{ github.workspace }}/artifacts/${name}/release"
-          #   chmod +x ./*
-          #   tar -czvf ./${name}.tar.gz ./*
-          #   gh release upload $TAG ${name}.tar.gz
-          # done
+          cd ${{ github.workspace }}/target/aarch64-apple-darwin/release/release
+          chmod cargo-xfmt
+          tar -czf ./cargo-xfmt-macos-arm64.tar.gz cargo-xfmt
+          gh release upload $TAG target/aarch64-apple-darwin/release/cargo-xfmt.tar.gz
 
-          # gh release edit $TAG --draft=false
+          cd ${{ github.workspace }}/target/x86_64-pc-windows-msvc/release
+          chmod cargo-xfmt.exe
+          tar -czf ./cargo-xfmt-windows-amd64.tar.gz cargo-xfmt.exe
+          gh release upload $TAG target/x86_64-pc-windows-msvc/release/cargo-xfmt.tar.gz
 
-          # echo "VERSION=$TAG" >> "$GITHUB_OUTPUT"
+          cd ${{ github.workspace }}/target/aarch64-pc-windows-msvc/release
+          chmod cargo-xfmt.exe
+          tar -czf ./cargo-xfmt-windows-arm64.tar.gz cargo-xfmt.exe
+          gh release upload $TAG target/aarch64-pc-windows-msvc/release/cargo-xfmt.tar.gz
+
+          gh release edit $TAG --draft=false
