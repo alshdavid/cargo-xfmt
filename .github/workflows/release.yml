@@ -31,7 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: eval $(curl -sSf sh.davidalsh.com/rust.sh | sh)
-      - run: cargo run
+      - run: cargo run -- check
 
   version:
     name: 🌐 Auto Version Increment
