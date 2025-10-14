@@ -129,39 +129,39 @@ jobs:
         run: |
           set -e
 
-          echo "Tag: ${TAG}"
+          echo "Tag: ${VERSION}"
 
-          gh release create $TAG  --draft --notes "Automatically built binaries"
-          gh release edit $TAG --title "🚀 Latest"
+          gh release create $VERSION  --draft --notes "Automatically built binaries"
+          gh release edit $VERSION --title "🚀 Latest"
 
           cd ${{ github.workspace }}/target/x86_64-unknown-linux-musl/release
           chmod +x cargo-xfmt
-          tar -czf ./cargo-xfmt-linux-amd64.tar.gz cargo-xfmt
-          gh release upload $TAG ${{ github.workspace }}/target/x86_64-unknown-linux-musl/release/cargo-xfmt.tar.gz
+          tar -czf ./cargo-xfmt-$VERSION-linux-amd64.tar.gz cargo-xfmt
+          gh release upload $VERSION ${{ github.workspace }}/target/x86_64-unknown-linux-musl/release/cargo-xfmt.tar.gz
 
           cd ${{ github.workspace }}/target/aarch64-unknown-linux-musl/release
           chmod +x cargo-xfmt
-          tar -czf ./cargo-xfmt-linux-arm64.tar.gz cargo-xfmt
-          gh release upload $TAG target/aarch64-unknown-linux-musl/release/cargo-xfmt.tar.gz
+          tar -czf ./cargo-xfmt-$VERSION-linux-arm64.tar.gz cargo-xfmt
+          gh release upload $VERSION target/aarch64-unknown-linux-musl/release/cargo-xfmt.tar.gz
 
           cd ${{ github.workspace }}/target/x86_64-apple-darwin/release
           chmod +x cargo-xfmt
-          tar -czf ./cargo-xfmt-macos-amd64.tar.gz cargo-xfmt
-          gh release upload $TAG target/x86_64-apple-darwin/release/cargo-xfmt.tar.gz
+          tar -czf ./cargo-xfmt-$VERSION-macos-amd64.tar.gz cargo-xfmt
+          gh release upload $VERSION target/x86_64-apple-darwin/release/cargo-xfmt.tar.gz
 
           cd ${{ github.workspace }}/target/aarch64-apple-darwin/release/release
           chmod +x cargo-xfmt
-          tar -czf ./cargo-xfmt-macos-arm64.tar.gz cargo-xfmt
-          gh release upload $TAG target/aarch64-apple-darwin/release/cargo-xfmt.tar.gz
+          tar -czf ./cargo-xfmt-$VERSION-macos-arm64.tar.gz cargo-xfmt
+          gh release upload $VERSION target/aarch64-apple-darwin/release/cargo-xfmt.tar.gz
 
           cd ${{ github.workspace }}/target/x86_64-pc-windows-msvc/release
           chmod +x cargo-xfmt.exe
-          tar -czf ./cargo-xfmt-windows-amd64.tar.gz cargo-xfmt.exe
-          gh release upload $TAG target/x86_64-pc-windows-msvc/release/cargo-xfmt.tar.gz
+          tar -czf ./cargo-xfmt-$VERSION-windows-amd64.tar.gz cargo-xfmt.exe
+          gh release upload $VERSION target/x86_64-pc-windows-msvc/release/cargo-xfmt.tar.gz
 
           cd ${{ github.workspace }}/target/aarch64-pc-windows-msvc/release
           chmod +x cargo-xfmt.exe
-          tar -czf ./cargo-xfmt-windows-arm64.tar.gz cargo-xfmt.exe
-          gh release upload $TAG target/aarch64-pc-windows-msvc/release/cargo-xfmt.tar.gz
+          tar -czf ./cargo-xfmt-$VERSION-windows-arm64.tar.gz cargo-xfmt.exe
+          gh release upload $VERSION target/aarch64-pc-windows-msvc/release/cargo-xfmt.tar.gz
 
-          gh release edit $TAG --draft=false
+          gh release edit $VERSION --draft=false
