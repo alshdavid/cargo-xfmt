@@ -17,6 +17,26 @@ cargo xfmt
 cargo xfmt --config ./path/to/config.toml
 ```
 
+### Format on save
+
+#### VSCode
+
+Install this plugin [https://marketplace.visualstudio.com/items?itemName=emeraldwalk.RunOnSave](https://marketplace.visualstudio.com/items?itemName=emeraldwalk.RunOnSave)
+
+And add this to `.vscode/settings.json`
+
+```json
+{
+  "emeraldwalk.runonsave": {
+    "commands": [
+      {
+        "match": ".rs",
+        "cmd": "cargo xfmt --file ${file}"
+      }
+    ]
+  }
+}
+```
 
 ### How it works and why it's relatively safe
 
