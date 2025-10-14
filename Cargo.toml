@@ -1,6 +1,6 @@
 [package]
 name = "cargo-xfmt"
-version = "0.0.0"
+version = "0.0.0-local"
 edition = "2024"
 
 [dependencies]
