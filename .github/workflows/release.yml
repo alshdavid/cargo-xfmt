@@ -150,7 +150,7 @@ jobs:
           tar -czf ./cargo-xfmt-$VERSION-macos-amd64.tar.gz cargo-xfmt
           gh release upload $VERSION ./cargo-xfmt-$VERSION-macos-amd64.tar.gz
 
-          cd ${{ github.workspace }}/target/aarch64-apple-darwin/release/release
+          cd ${{ github.workspace }}/target/aarch64-apple-darwin/release
           chmod +x cargo-xfmt
           tar -czf ./cargo-xfmt-$VERSION-macos-arm64.tar.gz cargo-xfmt
           gh release upload $VERSION ./cargo-xfmt-$VERSION-macos-arm64.tar.gz
@@ -166,3 +166,22 @@ jobs:
           gh release upload $VERSION ./cargo-xfmt-$VERSION-windows-arm64.tar.gz
 
           gh release edit $VERSION --draft=false
+
+  publish_crates_io:
+    name: "🔁 Publish: Crate"
+    runs-on: ubuntu-latest
+    needs: 
+      - test
+      - format
+      - build
+      - version
+    steps:
+      - uses: actions/checkout@v4
+      - run: eval $(curl -sSf sh.davidalsh.com/rust.sh | sh)
+      - run: |
+          set -e
+          sed "s/0.0.0-local/${VERSION}/g" "Cargo.toml" > "Cargo.toml.new" && mv "Cargo.toml.new" "Cargo.toml"
+          cargo publish
+      - env:
+          CRATES_IO_API_TOKEN: ${{ secrets.CRATES_IO_API_TOKEN }}
+          VERSION: ${{needs.version.outputs.VERSION}}
