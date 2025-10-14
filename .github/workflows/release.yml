@@ -107,8 +107,6 @@ jobs:
   publish_github_release:
     name: "🔄 Publish Github Release"
     runs-on: ubuntu-24.04
-    outputs:
-      VERSION: ${{ steps.tag.outputs.VERSION }}
     needs:
       - test
       - format
@@ -123,7 +121,7 @@ jobs:
 
       - name: Publish` Github Release
         env:
-          GH_TAG: ${{needs.vars.outputs.GH_TAG}}
+          VERSION: ${{needs.version.outputs.VERSION}}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
