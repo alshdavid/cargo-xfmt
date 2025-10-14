@@ -22,7 +22,9 @@ pub struct Command {
 
 fn main() -> anyhow::Result<()> {
     let mut args = std::env::args().into_iter().collect::<Vec<String>>();
-    if let Some(arg) = args.get(0) && arg == "cargo" {
+    if let Some(arg) = args.get(0)
+        && arg == "cargo"
+    {
         args.remove(0);
     }
 
