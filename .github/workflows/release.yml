@@ -94,7 +94,7 @@ jobs:
       - run: eval $(curl -sSf sh.davidalsh.com/rust.sh | sh)
       - if: matrix.config.run
         run: ${{ matrix.config.run }}
-      - run: sed -i "s/0.0.0-local/${VERSION}/g" Cargo.toml
+      - run: sed "s/0.0.0-local/${VERSION}/g" "Cargo.toml" > "Cargo.toml.new" && mv "Cargo.toml.new" "Cargo.toml"
         env:
           VERSION: ${{needs.version.outputs.VERSION}}
       - run: cargo build --release --target ${{ matrix.config.target }}
