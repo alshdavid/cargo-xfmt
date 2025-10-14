@@ -21,7 +21,12 @@ pub struct Command {
 }
 
 fn main() -> anyhow::Result<()> {
-    let command = Command::parse();
+    let mut args = std::env::args().into_iter().collect::<Vec<String>>();
+    if let Some(arg) = args.get(0) && arg == "cargo" {
+        args.remove(0);
+    }
+
+    let command = Command::parse_from(&args);
 
     let Ok(cwd) = env::current_dir() else {
         return Err(anyhow::anyhow!("Unable to get cwd"));
