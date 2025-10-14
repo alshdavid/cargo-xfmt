@@ -114,6 +114,7 @@ jobs:
       - test
       - format
       - build
+      - version
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -133,6 +134,14 @@ jobs:
 
           gh release create $VERSION  --draft --notes "Automatically built binaries"
           gh release edit $VERSION --title "🚀 Latest"
+
+          cd ${{ github.workspace }}/target
+          for name in *; do
+            cd "${{ github.workspace }}/artifacts/${name}/release"
+            chmod +x ./*
+            tar -czvf ./${name}.tar.gz ./*
+            gh release upload $GH_TAG ${name}.tar.gz
+          done
 
           cd ${{ github.workspace }}/target/x86_64-unknown-linux-musl/release
           chmod +x cargo-xfmt
