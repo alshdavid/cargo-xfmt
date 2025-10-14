@@ -137,31 +137,31 @@ jobs:
           cd ${{ github.workspace }}/target/x86_64-unknown-linux-musl/release
           chmod +x cargo-xfmt
           tar -czf ./cargo-xfmt-$VERSION-linux-amd64.tar.gz cargo-xfmt
-          gh release upload $VERSION ${{ github.workspace }}/target/x86_64-unknown-linux-musl/release/cargo-xfmt.tar.gz
+          gh release upload $VERSION ./cargo-xfmt-$VERSION-linux-amd64.tar.gz
 
           cd ${{ github.workspace }}/target/aarch64-unknown-linux-musl/release
           chmod +x cargo-xfmt
           tar -czf ./cargo-xfmt-$VERSION-linux-arm64.tar.gz cargo-xfmt
-          gh release upload $VERSION target/aarch64-unknown-linux-musl/release/cargo-xfmt.tar.gz
+          gh release upload $VERSION ./cargo-xfmt-$VERSION-linux-arm64.tar.gz
 
           cd ${{ github.workspace }}/target/x86_64-apple-darwin/release
           chmod +x cargo-xfmt
           tar -czf ./cargo-xfmt-$VERSION-macos-amd64.tar.gz cargo-xfmt
-          gh release upload $VERSION target/x86_64-apple-darwin/release/cargo-xfmt.tar.gz
+          gh release upload $VERSION ./cargo-xfmt-$VERSION-macos-amd64.tar.gz
 
           cd ${{ github.workspace }}/target/aarch64-apple-darwin/release/release
           chmod +x cargo-xfmt
           tar -czf ./cargo-xfmt-$VERSION-macos-arm64.tar.gz cargo-xfmt
-          gh release upload $VERSION target/aarch64-apple-darwin/release/cargo-xfmt.tar.gz
+          gh release upload $VERSION ./cargo-xfmt-$VERSION-macos-arm64.tar.gz
 
           cd ${{ github.workspace }}/target/x86_64-pc-windows-msvc/release
           chmod +x cargo-xfmt.exe
           tar -czf ./cargo-xfmt-$VERSION-windows-amd64.tar.gz cargo-xfmt.exe
-          gh release upload $VERSION target/x86_64-pc-windows-msvc/release/cargo-xfmt.tar.gz
+          gh release upload $VERSION ./cargo-xfmt-$VERSION-windows-amd64.tar.gz
 
           cd ${{ github.workspace }}/target/aarch64-pc-windows-msvc/release
           chmod +x cargo-xfmt.exe
           tar -czf ./cargo-xfmt-$VERSION-windows-arm64.tar.gz cargo-xfmt.exe
-          gh release upload $VERSION target/aarch64-pc-windows-msvc/release/cargo-xfmt.tar.gz
+          gh release upload $VERSION ./cargo-xfmt-$VERSION-windows-arm64.tar.gz
 
           gh release edit $VERSION --draft=false
