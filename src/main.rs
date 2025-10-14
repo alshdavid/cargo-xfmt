@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::env;
 use std::path::PathBuf;
-use std::process;
+use std::process::{self};
 
 use clap::Parser;
 use normalize_path::NormalizePath;
@@ -106,8 +106,9 @@ fn main() -> anyhow::Result<()> {
     cmd.stdout(process::Stdio::inherit());
     cmd.stderr(process::Stdio::inherit());
 
+    let mut status_code = None::<i32>;
     if let Ok(mut child) = cmd.spawn() {
-        child.wait()?;
+        status_code = child.wait()?.code();
     };
 
     if config_path.ends_with(".rustfmt.toml") || config_path.ends_with("rustfmt.toml") {
@@ -117,5 +118,9 @@ fn main() -> anyhow::Result<()> {
         )?
     }
 
-    Ok(())
+    if let Some(exit_code) = status_code {
+        std::process::exit(exit_code);
+    }
+
+    Err(anyhow::anyhow!("Child process failed"))
 }
