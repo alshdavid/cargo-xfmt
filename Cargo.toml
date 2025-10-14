@@ -2,6 +2,10 @@
 name = "cargo-xfmt"
 version = "0.0.0-local"
 edition = "2024"
+authors = ["alshdavid"]
+repository = "https://github.com/alshdavid/cargo-xfmt"
+description = "Safely use nightly fmt options without using unstable Rust"
+license = "MIT"
 
 [dependencies]
 anyhow = "1.0.100"
