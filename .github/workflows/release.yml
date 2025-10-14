@@ -133,7 +133,7 @@ jobs:
           echo "Tag: ${VERSION}"
 
           gh release create $VERSION  --draft --notes "Automatically built binaries"
-          gh release edit $VERSION --title "🚀 Latest"
+          gh release edit $VERSION --title "🚀 v$VERSION"
 
           cd ${{ github.workspace }}/target/x86_64-unknown-linux-musl/release
           chmod +x cargo-xfmt
@@ -181,7 +181,7 @@ jobs:
       - run: |
           set -e
           sed "s/0.0.0-local/${VERSION}/g" "Cargo.toml" > "Cargo.toml.new" && mv "Cargo.toml.new" "Cargo.toml"
-          cargo publish
+          cargo publish --allow-dirty
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_API_TOKEN }}
           VERSION: ${{needs.version.outputs.VERSION}}
