@@ -14,27 +14,18 @@ The same as `cargo fmt`
 
 ```bash
 cargo xfmt
-cargo xfmt --config ./path/to/config.toml
+cargo xfmt --config ./path/to/rustfmt.toml
 ```
 
-### Format on save
-
-#### VSCode
-
-Install this plugin [https://marketplace.visualstudio.com/items?itemName=emeraldwalk.RunOnSave](https://marketplace.visualstudio.com/items?itemName=emeraldwalk.RunOnSave)
+### VSCode
 
 And add this to `.vscode/settings.json`
 
 ```json
 {
-  "emeraldwalk.runonsave": {
-    "commands": [
-      {
-        "match": ".rs",
-        "cmd": "cargo xfmt --file ${file}"
-      }
-    ]
-  }
+  "rust-analyzer.rustfmt.overrideCommand": [
+    "cargo", "xfmt",
+  ]
 }
 ```
 
