@@ -1,39 +1,39 @@
 use std::process;
 
-use crate::rustfmt_toml::RustfmtToml;
-use crate::vec_ext::split_at_first_occurrence;
+use crate::platform::rustfmt_toml::RustfmtToml;
+use crate::platform::vec_ext::split_at_first_occurrence;
 
-pub struct CargofmtOptions {
+pub struct CargoFmtOptions {
     pub check: bool,
     pub additional_args: Vec<String>,
 }
 
-pub fn cargo_fmt(options: CargofmtOptions) -> anyhow::Result<()> {
+pub fn cargo_fmt(options: CargoFmtOptions) -> anyhow::Result<()> {
     let rustfmt_toml = RustfmtToml::read_from(&std::env::current_dir()?)?;
     let (additional_cargo_args, additional_rustfmt_args) =
         split_at_first_occurrence(options.additional_args, &"--".to_string());
 
     let mut cmd = process::Command::new("cargo");
 
-    cmd.arg("fmt".to_string());
+    cmd.arg("fmt");
 
     if options.check {
-        cmd.arg("--check".to_string());
+        cmd.arg("--check");
     }
 
     for arg in &additional_cargo_args {
-        cmd.arg(arg.to_string());
+        cmd.arg(arg);
     }
 
-    cmd.arg("--".to_string());
+    cmd.arg("--");
 
     for (key, value) in rustfmt_toml.iter() {
-        cmd.arg("--config".to_string());
+        cmd.arg("--config");
         cmd.arg(format!("{}={}", key, value));
     }
 
     for arg in &additional_rustfmt_args {
-        cmd.arg(arg.to_string());
+        cmd.arg(arg);
     }
 
     cmd.stdin(process::Stdio::inherit());

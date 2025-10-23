@@ -11,7 +11,7 @@ pub fn path_to_absolute(input: &Path) -> anyhow::Result<PathBuf> {
         Ok(input.normalize())
     } else {
         let cwd = std::env::current_dir()?;
-        Ok(cwd.join(&input).normalize())
+        Ok(cwd.join(input).normalize())
     }
 }
 

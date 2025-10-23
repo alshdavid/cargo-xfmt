@@ -2,8 +2,8 @@ use std::collections::HashMap;
 use std::path::Path;
 use std::path::PathBuf;
 
-use crate::path_ext::find_ancestor_file;
-use crate::path_ext::path_to_absolute;
+use crate::platform::path_ext::find_ancestor_file;
+use crate::platform::path_ext::path_to_absolute;
 
 pub struct CargoToml {
     pub edition: Option<String>,
@@ -28,7 +28,7 @@ impl CargoToml {
     }
 
     pub fn read(cargo_toml_path: &Path) -> anyhow::Result<Self> {
-        let cargo_toml_str = std::fs::read_to_string(&cargo_toml_path)?;
+        let cargo_toml_str = std::fs::read_to_string(cargo_toml_path)?;
         let cargo_toml = toml::from_str::<HashMap<String, toml::Value>>(&cargo_toml_str)?;
         let Some(toml::Value::Table(package)) = cargo_toml.get("package") else {
             return Ok(Self { edition: None });

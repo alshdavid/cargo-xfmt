@@ -2,8 +2,8 @@ use std::io::Read;
 use std::io::Write;
 use std::process::{self};
 
-use crate::cargo_toml::CargoToml;
-use crate::rustfmt_toml::RustfmtToml;
+use crate::platform::cargo_toml::CargoToml;
+use crate::platform::rustfmt_toml::RustfmtToml;
 
 pub struct RustfmtStdioOptions {
     pub check: bool,
@@ -17,21 +17,21 @@ pub fn rustfmt_stdio(options: RustfmtStdioOptions) -> anyhow::Result<()> {
     let mut cmd = process::Command::new("rustfmt");
 
     if options.check {
-        cmd.arg("--check".to_string());
+        cmd.arg("--check");
     }
 
     if let Some(edition) = cargo_toml.edition {
-        cmd.arg("--edition".to_string());
+        cmd.arg("--edition");
         cmd.arg(edition.clone());
     }
 
     for (key, value) in rustfmt_toml.iter() {
-        cmd.arg("--config".to_string());
+        cmd.arg("--config");
         cmd.arg(format!("{}={}", key, value));
     }
 
     for arg in &options.additional_args {
-        cmd.arg(arg.to_string());
+        cmd.arg(arg);
     }
 
     cmd.stdin(process::Stdio::piped());

@@ -5,8 +5,8 @@ use std::path::PathBuf;
 
 use parking_lot::Mutex;
 
-use crate::path_ext::find_ancestor_file;
-use crate::path_ext::path_to_absolute;
+use crate::platform::path_ext::find_ancestor_file;
+use crate::platform::path_ext::path_to_absolute;
 
 pub type RustfmtOptions = Vec<(String, String)>;
 
