@@ -2,7 +2,6 @@ use std::io::Read;
 use std::io::Write;
 use std::process::{self};
 
-
 use crate::cargo_toml::CargoToml;
 use crate::rustfmt_toml::RustfmtToml;
 
@@ -55,12 +54,7 @@ pub fn rustfmt_stdio(options: RustfmtStdioOptions) -> anyhow::Result<()> {
     drop(stdin);
 
     let status = child.wait()?;
-    if !status.success() {
-        return Err(anyhow::anyhow!(
-            "Error with child command 'rustfmt {:?}'",
-            cmd.get_args()
-        ));
-    }
 
-    Ok(())
+    rustfmt_toml.unhide()?;
+    std::process::exit(status.code().unwrap_or(1))
 }

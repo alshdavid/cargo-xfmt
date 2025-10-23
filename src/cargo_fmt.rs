@@ -44,12 +44,7 @@ pub fn cargo_fmt(options: CargofmtOptions) -> anyhow::Result<()> {
     let mut child = cmd.spawn()?;
 
     let status = child.wait()?;
-    if !status.success() {
-        return Err(anyhow::anyhow!(
-            "Error with child command 'rustfmt {:?}'",
-            cmd.get_args()
-        ));
-    }
 
-    Ok(())
+    rustfmt_toml.unhide()?;
+    std::process::exit(status.code().unwrap_or(1))
 }

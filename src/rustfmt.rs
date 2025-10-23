@@ -63,14 +63,10 @@ fn rustfmt_one(
     drop(stdin);
 
     let result = child.wait_with_output()?;
-    if !result.status.success() {
-        return Err(anyhow::anyhow!(
-            "Error with child command 'rustfmt {:?}'",
-            cmd.get_args()
-        ));
+    if result.status.success() {
+        fs::write(&input_path, result.stdout)?;
     }
 
-    fs::write(&input_path, result.stdout)?;
-
-    Ok(())
+    rustfmt_toml.unhide()?;
+    std::process::exit(result.status.code().unwrap_or(1))
 }
