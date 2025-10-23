@@ -33,8 +33,10 @@ fn rustfmt_one(
         cmd.arg("--check".to_string());
     }
 
-    cmd.arg("--edition".to_string());
-    cmd.arg(cargo_toml.edition.clone());
+    if let Some(edition) = cargo_toml.edition {
+        cmd.arg("--edition".to_string());
+        cmd.arg(edition.clone());
+    }
 
     for (key, value) in rustfmt_toml.iter() {
         cmd.arg("--config".to_string());
