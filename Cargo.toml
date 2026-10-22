@@ -11,7 +11,7 @@ license = "MIT"
 anyhow = "1"
 clap = { version = "4", features = ["derive"] }
 normalize-path = "0.2"
-parking_lot = "0.12"
+parking_lot = "0.13"
 toml = "1"
 
 [profile.release]
