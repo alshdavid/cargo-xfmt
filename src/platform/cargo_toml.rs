@@ -6,39 +6,39 @@ use crate::platform::path_ext::find_ancestor_file;
 use crate::platform::path_ext::path_to_absolute;
 
 pub struct CargoToml {
-    pub edition: Option<String>,
+  pub edition: Option<String>,
 }
 
 impl CargoToml {
-    pub fn read_from(start_from: &Path) -> anyhow::Result<Self> {
-        let Some(cargo_toml_path) = Self::find(start_from)? else {
-            return Err(anyhow::anyhow!("Unable to find Cargo.toml"));
-        };
+  pub fn read_from(start_from: &Path) -> anyhow::Result<Self> {
+    let Some(cargo_toml_path) = Self::find(start_from)? else {
+      return Err(anyhow::anyhow!("Unable to find Cargo.toml"));
+    };
 
-        Self::read(&cargo_toml_path)
+    Self::read(&cargo_toml_path)
+  }
+
+  pub fn find(start_from: &Path) -> anyhow::Result<Option<PathBuf>> {
+    let mut results = find_ancestor_file(start_from, "Cargo.toml")?;
+    if let Some(result) = results.pop() {
+      return Ok(Some(path_to_absolute(&result)?));
     }
 
-    pub fn find(start_from: &Path) -> anyhow::Result<Option<PathBuf>> {
-        let mut results = find_ancestor_file(start_from, "Cargo.toml")?;
-        if let Some(result) = results.pop() {
-            return Ok(Some(path_to_absolute(&result)?));
-        }
+    Ok(None)
+  }
 
-        Ok(None)
-    }
+  pub fn read(cargo_toml_path: &Path) -> anyhow::Result<Self> {
+    let cargo_toml_str = std::fs::read_to_string(cargo_toml_path)?;
+    let cargo_toml = toml::from_str::<HashMap<String, toml::Value>>(&cargo_toml_str)?;
+    let Some(toml::Value::Table(package)) = cargo_toml.get("package") else {
+      return Ok(Self { edition: None });
+    };
+    let Some(toml::Value::String(edition)) = package.get("edition") else {
+      return Ok(Self { edition: None });
+    };
 
-    pub fn read(cargo_toml_path: &Path) -> anyhow::Result<Self> {
-        let cargo_toml_str = std::fs::read_to_string(cargo_toml_path)?;
-        let cargo_toml = toml::from_str::<HashMap<String, toml::Value>>(&cargo_toml_str)?;
-        let Some(toml::Value::Table(package)) = cargo_toml.get("package") else {
-            return Ok(Self { edition: None });
-        };
-        let Some(toml::Value::String(edition)) = package.get("edition") else {
-            return Ok(Self { edition: None });
-        };
-
-        Ok(Self {
-            edition: Some(edition.to_string()),
-        })
-    }
+    Ok(Self {
+      edition: Some(edition.to_string()),
+    })
+  }
 }

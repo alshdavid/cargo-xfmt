@@ -8,70 +8,70 @@ use crate::platform::path_ext::path_to_absolute;
 use crate::platform::rustfmt_toml::RustfmtToml;
 
 pub struct RustfmtOptions {
-    pub check: bool,
-    pub files: Vec<PathBuf>,
-    pub preserve_config: bool,
-    pub additional_args: Vec<String>,
+  pub check: bool,
+  pub files: Vec<PathBuf>,
+  pub preserve_config: bool,
+  pub additional_args: Vec<String>,
 }
 
 pub fn rustfmt(options: RustfmtOptions) -> anyhow::Result<()> {
-    for file in options.files.clone() {
-        rustfmt_one(file, &options)?;
-    }
-    Ok(())
+  for file in options.files.clone() {
+    rustfmt_one(file, &options)?;
+  }
+  Ok(())
 }
 
 fn rustfmt_one(
-    file: PathBuf,
-    options: &RustfmtOptions,
+  file: PathBuf,
+  options: &RustfmtOptions,
 ) -> anyhow::Result<()> {
-    let cargo_toml = CargoToml::read_from(&file)?;
-    let rustfmt_toml = RustfmtToml::read_from(&file)?;
+  let cargo_toml = CargoToml::read_from(&file)?;
+  let rustfmt_toml = RustfmtToml::read_from(&file)?;
 
-    let mut cmd = process::Command::new("rustfmt");
+  let mut cmd = process::Command::new("rustfmt");
 
-    if options.check {
-        cmd.arg("--check");
-    }
+  if options.check {
+    cmd.arg("--check");
+  }
 
-    if let Some(edition) = cargo_toml.edition {
-        cmd.arg("--edition");
-        cmd.arg(edition.clone());
-    }
+  if let Some(edition) = cargo_toml.edition {
+    cmd.arg("--edition");
+    cmd.arg(edition.clone());
+  }
 
-    for (key, value) in rustfmt_toml.iter() {
-        cmd.arg("--config");
-        cmd.arg(format!("{}={}", key, value));
-    }
+  for (key, value) in rustfmt_toml.iter() {
+    cmd.arg("--config");
+    cmd.arg(format!("{}={}", key, value));
+  }
 
-    for arg in &options.additional_args {
-        cmd.arg(arg);
-    }
+  for arg in &options.additional_args {
+    cmd.arg(arg);
+  }
 
-    cmd.stdin(process::Stdio::piped());
-    cmd.stdout(process::Stdio::piped());
-    cmd.stderr(process::Stdio::inherit());
+  cmd.stdin(process::Stdio::piped());
+  cmd.stdout(process::Stdio::piped());
+  cmd.stderr(process::Stdio::inherit());
 
-    if !options.preserve_config {
-        rustfmt_toml.hide()?;
-    }
-    let mut child = cmd.spawn()?;
+  if !options.preserve_config {
+    rustfmt_toml.hide()?;
+  }
+  let mut child = cmd.spawn()?;
 
-    let input_path = path_to_absolute(&file)?;
-    let input = std::fs::read_to_string(&input_path)?;
+  let input_path = path_to_absolute(&file)?;
+  let input = std::fs::read_to_string(&input_path)?;
 
-    let Some(mut stdin) = child.stdin.take() else {
-        return Err(anyhow::anyhow!("Unable to get stdin for rustfmt"));
-    };
+  let Some(mut stdin) = child.stdin.take() else {
+    return Err(anyhow::anyhow!("Unable to get stdin for rustfmt"));
+  };
 
-    stdin.write_all(input.as_bytes())?;
-    drop(stdin);
+  stdin.write_all(input.as_bytes())?;
+  drop(stdin);
 
-    let result = child.wait_with_output()?;
-    if result.status.success() {
-        fs::write(&input_path, result.stdout)?;
-    }
+  let result = child.wait_with_output()?;
+  if result.status.success() {
+    fs::write(&input_path, result.stdout)?;
+  }
 
-    rustfmt_toml.unhide()?;
-    std::process::exit(result.status.code().unwrap_or(1))
+  rustfmt_toml.unhide()?;
+  std::process::exit(result.status.code().unwrap_or(1))
 }
